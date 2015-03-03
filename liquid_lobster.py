@@ -12,11 +12,14 @@ access their Dropbox and having placed the generated authorization token
 into the ``LLOBSTER_TOKEN`` environment variable.
 """
 import dropbox
+import click
 import sys
 import os
 
 
-def main():
+@click.command()
+@click.argument('file_name', type=click.Path(exists=True))
+def drop(file_name):
     """
     Drops the file given as a command line argument to Dropbox under the
     directory named by the ``LLOBSTER_DROP_DIR`` environment variable
@@ -25,15 +28,9 @@ def main():
     The token which is used to authenticate with Dropbox should be found
     in the environment variable ``LLOBSTER_TOKEN``
     """
-    file_to_deploy = sys.argv[1:]
-    if not file_to_deploy:
-        print 'You need to provide some files that should be deployed.'
-        return
-    file_name = file_to_deploy[0]
-
     # Read the config from environment variables
     if 'LLOBSTER_TOKEN' not in os.environ:
-        print 'Missing the LLOBSTER_TOKEN environment variable'
+        click.echo('Missing the LLOBSTER_TOKEN environment variable')
         return
     token = os.environ['LLOBSTER_TOKEN']
     # If there is no directory, we assume the user wants the files to be
@@ -42,10 +39,10 @@ def main():
 
     client = dropbox.client.DropboxClient(token)
 
-    print 'Uploading ``' + file_name + '`` ...'
+    click.echo('Uploading ``' + file_name + '`` ...')
     with open(file_name, 'rb') as f:
         client.put_file(os.path.join(directory, file_name), f)
 
 
 if __name__ == '__main__':
-    main()
+    drop()

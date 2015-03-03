@@ -19,7 +19,10 @@ import os
 
 @click.command()
 @click.argument('file_name', type=click.Path(exists=True))
-def drop(file_name):
+@click.option('--destname',
+              help='The name the file will have in the Dropbox directory',
+              default='')
+def drop(file_name, destname):
     """
     Drops the file given as a command line argument to Dropbox under the
     directory named by the ``LLOBSTER_DROP_DIR`` environment variable
@@ -28,6 +31,10 @@ def drop(file_name):
     The token which is used to authenticate with Dropbox should be found
     in the environment variable ``LLOBSTER_TOKEN``
     """
+    # If the destination name is not provided, we simply use the one the
+    # file has...
+    if not destname:
+        destname = os.path.split(file_name)[-1]
     # Read the config from environment variables
     if 'LLOBSTER_TOKEN' not in os.environ:
         click.echo('Missing the LLOBSTER_TOKEN environment variable')
@@ -41,7 +48,7 @@ def drop(file_name):
 
     click.echo('Uploading ``' + file_name + '`` ...')
     with open(file_name, 'rb') as f:
-        client.put_file(os.path.join(directory, file_name), f)
+        client.put_file(os.path.join(directory, destname), f)
 
 
 if __name__ == '__main__':

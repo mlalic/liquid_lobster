@@ -18,19 +18,18 @@ import os
 
 def main():
     """
-    Drops all files given as command line arguments to Dropbox under the
+    Drops the file given as a command line argument to Dropbox under the
     directory named by the ``LLOBSTER_DROP_DIR`` environment variable
     within the ``LiquidLobster`` app's folder on Dropbox.
 
     The token which is used to authenticate with Dropbox should be found
     in the environment variable ``LLOBSTER_TOKEN``
     """
-    # All command line parameters are interpreted to be names of files that
-    # should be dropped to Dropbox.
-    files_to_deploy = sys.argv[1:]
-    if not files_to_deploy:
+    file_to_deploy = sys.argv[1:]
+    if not file_to_deploy:
         print 'You need to provide some files that should be deployed.'
         return
+    file_name = file_to_deploy[0]
 
     # Read the config from environment variables
     if 'LLOBSTER_TOKEN' not in os.environ:
@@ -43,11 +42,9 @@ def main():
 
     client = dropbox.client.DropboxClient(token)
 
-    # Now upload each file, one by one...
-    for file_name in files_to_deploy:
-        print 'Uploading ``' + file_name + '`` ...'
-        with open(file_name, 'rb') as f:
-            client.put_file(os.path.join(directory, file_name), f)
+    print 'Uploading ``' + file_name + '`` ...'
+    with open(file_name, 'rb') as f:
+        client.put_file(os.path.join(directory, file_name), f)
 
 
 if __name__ == '__main__':
